@@ -1,0 +1,4 @@
+package dev.emanoel.shopcore.category;
+import dev.emanoel.shopcore.exception.BusinessException; import jakarta.validation.constraints.NotBlank; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.util.List;
+@RestController @RequestMapping("/api/categories")
+public class CategoryController { private final CategoryRepository repo; public CategoryController(CategoryRepository repo){this.repo=repo;} public record Req(@NotBlank String name){} @GetMapping public List<Category> all(){return repo.findAll();} @PostMapping @PreAuthorize("hasRole('ADMIN')") public Category create(@RequestBody Req r){if(repo.existsByNameIgnoreCase(r.name()))throw new BusinessException("Category already exists");return repo.save(new Category(r.name().trim()));} }

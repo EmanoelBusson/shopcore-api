@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: shopcore
+      POSTGRES_USER: shopcore
+      POSTGRES_PASSWORD: shopcore
+    ports: ["5432:5432"]
+    volumes: ["shopcore_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shopcore -d shopcore"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api:
+    build: .
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/shopcore
+      DB_USER: shopcore
+      DB_PASSWORD: shopcore
+      JWT_SECRET: local-development-secret-key-must-be-at-least-32-characters
+    ports: ["8080:8080"]
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  shopcore_pg:
